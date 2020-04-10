@@ -1,6 +1,3 @@
-import face_recognition
-import cv2
-import numpy as np
 import cv2
 from PIL import Image
 import numpy as np
@@ -8,68 +5,31 @@ import face_recognition
 import dlib
 import os
 class my_dictionary(dict): 
-  
-    # __init__ function 
     def __init__(self): 
         self = dict() 
-          
-    # Function to add key:value 
+
     def add(self, key, value): 
         self[key] = value 
-# Main Function 
-def thug():
-        # thug life meme mask image path
-        maskPath = "hack.png"
-        #maskpath2 = "mustache.png"
-	
-        # cascade classifier object 
-        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
-        # Open mask as PIL image 
+def thug():
+        maskPath = "hack.png"
+        faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
         mask = Image.open(maskPath)
-        #mask2 = Image.open(maskpath2)
         def thug_mask(image):
-        	
-        
         	gray=cv2.cvtColor(image,cv2.COLOR_BGR2RGBA)
         	faces = faceCascade.detectMultiScale(gray, 2)
-        	# convert cv2 imageto PIL image
         	background = Image.fromarray(image)
-        	#background2 = Image.fromarray(image)
+
         	for (x,y,w,h) in faces:
         		# resize mask
         		r = mask.resize((w,h), Image.ANTIALIAS)
-        		#r11 = mask2.resize((w,h), Image.ANTIALIAS)
-				#print(w,h,x,y)
-        		# define offset for mask
         		o = (x,y)
-				
-				#oa = (x , y)
-        		# pask mask on background
         		background.paste(r, o, mask=r)
-        		#background.paste(r11, o, mask=r11)
-        		# resize mask
-        		#r = mask2.resize((ew,eh), Image.ANTIALIAS)
-        		#r11 = mask2.resize((w,h), Image.ANTIALIAS)
 
-
-
-        		# define offset for mask
-        		#oa = (x,y)
-				#oa = (x , y)
-        		# pask mask on background
-        		#background2.paste(r11, oa, mask=r11)
-        			#background.paste(r11, o, mask=r11)
-
-        		# return background as cv2 image
         	return np.asarray(background)
-        	#return np.asarray(background)
-        	
-        	# return background as cv2 image
-        	#return np.asarray(background2)
-        	#return np.asarray(background)		
-		
+
         cap = cv2.VideoCapture(cv2.CAP_ANY)
+
         while True:
         	ret, frame = cap.read()
         
@@ -81,74 +41,48 @@ def thug():
 
         cap.release()
         cv2.destroyAllWindows()
-
-# This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
-# other example, but it includes some basic performance tweaks to make things run a lot faster:
-#   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
-#   2. Only detect faces in every other frame of video.
-
-# PLEASE NOTE: This example requires OpenCV (the `cv2` library) to be installed only to read from your webcam.
-# OpenCV is *not* required to use the face_recognition library. It's only required if you want to run this
-# specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
-
-# Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
 known_face_names=[]
 # Load a sample picture and learn how to recognize it.
 known_face_encodings=[]
-list=os.listdir('./data')
+list=os.listdir('data/')
 attendence=my_dictionary()
+
 for file in list:
     attendence.add(file,'absent')
     known_face_names.append(file)
     known_face_encodings.append(face_recognition.face_encodings(face_recognition.load_image_file('./data/'+file))[0])
-
-# Initialize some variables
 face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
+
 while True:
-    # Grab a single frame of videoq
     ret, frame = video_capture.read()
-
-    # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-
-    # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = small_frame[:, :, ::-1]
 
-    # Only process every other frame of video to save time
     if process_this_frame:
         # Find all the faces and face encodings in the current frame of video
         face_locations = face_recognition.face_locations(rgb_small_frame)
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-
         face_names = []
+
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
             name = "Unknown"
-
-            # # If a match was found in known_face_encodings, just use the first one.
-            # if True in matches:
-            #     first_match_index = matches.index(True)
-            #     name = known_face_names[first_match_index]
-
-            # Or instead, use the known face with the smallest distance to the new face
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
                 attendence.add(name,"present")
             face_names.append(name)
+
     print(attendence)
     process_this_frame = not process_this_frame
 
-
-    # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
-        # Scale back up face locations since the frame we detected in was scaled to 1/4 size
         top *= 4
         right *= 4
         bottom *= 4
