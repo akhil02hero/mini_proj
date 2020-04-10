@@ -8,7 +8,7 @@ Use the package manager [pip3](https://pip.pypa.io/en/stable/) to install necess
 
 ```bash
 pip3 install opencv-python
-pip3 install PIL
+pip3 install Pillow
 pip3 install numpy
 pip3 install face_recognition
 pip3 install dlib
