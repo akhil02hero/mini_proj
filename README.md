@@ -7,11 +7,10 @@ This is a practical application of face recognition.
 Use the package manager [pip3](https://pip.pypa.io/en/stable/) to install necessary packages.
 
 ```bash
-pip3 install cv2
+pip3 install opencv-python
 pip3 install PIL
 pip3 install numpy
 pip3 install face_recognition
-pip3 install opencv
 pip3 install dlib
 ```
 
